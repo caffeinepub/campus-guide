@@ -1,0 +1,272 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Font Faces ─────────────────────────────────────────── */
+@font-face {
+  font-family: "Cabinet Grotesk";
+  src: url("/assets/fonts/CabinetGrotesk-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Outfit";
+  src: url("/assets/fonts/Outfit-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ── Design Tokens ──────────────────────────────────────── */
+@layer base {
+  :root {
+    --radius: 0.75rem;
+
+    /* Campus teal + slate palette */
+    --background: 0.97 0.006 220;
+    --foreground: 0.15 0.02 240;
+
+    --card: 1 0 0;
+    --card-foreground: 0.15 0.02 240;
+
+    --popover: 1 0 0;
+    --popover-foreground: 0.15 0.02 240;
+
+    /* Teal primary */
+    --primary: 0.52 0.13 200;
+    --primary-foreground: 0.99 0 0;
+
+    --secondary: 0.92 0.01 220;
+    --secondary-foreground: 0.22 0.02 240;
+
+    --muted: 0.93 0.008 220;
+    --muted-foreground: 0.5 0.02 220;
+
+    --accent: 0.88 0.04 195;
+    --accent-foreground: 0.2 0.1 200;
+
+    --destructive: 0.577 0.245 27.325;
+    --destructive-foreground: 0.985 0 0;
+
+    --border: 0.88 0.012 220;
+    --input: 0.88 0.012 220;
+    --ring: 0.52 0.13 200;
+
+    /* Category badge colors */
+    --cat-department: 0.6 0.17 250;
+    --cat-classroom: 0.55 0.14 160;
+    --cat-lab: 0.58 0.2 30;
+    --cat-office: 0.52 0.1 295;
+    --cat-other: 0.5 0.04 220;
+
+    --chart-1: 0.52 0.13 200;
+    --chart-2: 0.6 0.17 250;
+    --chart-3: 0.55 0.14 160;
+    --chart-4: 0.58 0.2 30;
+    --chart-5: 0.52 0.1 295;
+
+    --sidebar: 0.15 0.04 235;
+    --sidebar-foreground: 0.96 0.01 220;
+    --sidebar-primary: 0.52 0.13 200;
+    --sidebar-primary-foreground: 0.99 0 0;
+    --sidebar-accent: 0.22 0.04 235;
+    --sidebar-accent-foreground: 0.96 0.01 220;
+    --sidebar-border: 0.25 0.04 235;
+    --sidebar-ring: 0.52 0.13 200;
+
+    /* Nav bar */
+    --nav-bg: 0.14 0.03 240;
+    --nav-active: 0.62 0.14 195;
+    --nav-inactive: 0.55 0.02 220;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Outfit", system-ui, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: "Cabinet Grotesk", system-ui, sans-serif;
+    font-weight: 700;
+  }
+}
+
+/* ── App Shell ──────────────────────────────────────────── */
+.app-shell {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: oklch(var(--background));
+  box-shadow: 0 0 40px oklch(0.14 0.03 240 / 0.15);
+}
+
+.tab-content {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 80px;
+}
+
+/* ── Bottom Nav ─────────────────────────────────────────── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 430px;
+  background: oklch(var(--nav-bg));
+  border-top: 1px solid oklch(0.25 0.04 235);
+  z-index: 50;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ── Category Badge Colors ──────────────────────────────── */
+.badge-department {
+  background: oklch(var(--cat-department) / 0.15);
+  color: oklch(var(--cat-department));
+  border-color: oklch(var(--cat-department) / 0.3);
+}
+
+.badge-classroom {
+  background: oklch(var(--cat-classroom) / 0.15);
+  color: oklch(var(--cat-classroom));
+  border-color: oklch(var(--cat-classroom) / 0.3);
+}
+
+.badge-lab {
+  background: oklch(var(--cat-lab) / 0.15);
+  color: oklch(var(--cat-lab));
+  border-color: oklch(var(--cat-lab) / 0.3);
+}
+
+.badge-office {
+  background: oklch(var(--cat-office) / 0.15);
+  color: oklch(var(--cat-office));
+  border-color: oklch(var(--cat-office) / 0.3);
+}
+
+.badge-other {
+  background: oklch(var(--cat-other) / 0.15);
+  color: oklch(var(--cat-other));
+  border-color: oklch(var(--cat-other) / 0.3);
+}
+
+/* ── Campus Map ─────────────────────────────────────────── */
+.campus-map-container {
+  background: oklch(0.88 0.03 215);
+  position: relative;
+  overflow: hidden;
+}
+
+.campus-map-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(oklch(0.75 0.04 215 / 0.4) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(0.75 0.04 215 / 0.4) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.building-block {
+  transition:
+    filter 0.15s ease,
+    transform 0.15s ease;
+  cursor: pointer;
+}
+
+.building-block:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.building-block:active {
+  transform: translateY(0);
+}
+
+/* ── Scanner overlay ──────────────────────────────────────── */
+.scan-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.scan-corner {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-color: oklch(0.62 0.14 195);
+  border-style: solid;
+}
+
+.scan-corner-tl {
+  top: 0;
+  left: 0;
+  border-width: 3px 0 0 3px;
+}
+.scan-corner-tr {
+  top: 0;
+  right: 0;
+  border-width: 3px 3px 0 0;
+}
+.scan-corner-bl {
+  bottom: 0;
+  left: 0;
+  border-width: 0 0 3px 3px;
+}
+.scan-corner-br {
+  bottom: 0;
+  right: 0;
+  border-width: 0 3px 3px 0;
+}
+
+@keyframes scan-line {
+  0% {
+    top: 0%;
+  }
+  50% {
+    top: 100%;
+  }
+  100% {
+    top: 0%;
+  }
+}
+
+.scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    oklch(0.62 0.14 195),
+    transparent
+  );
+  animation: scan-line 2.5s ease-in-out infinite;
+}
+
+/* ── Scrollbar style ──────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: oklch(var(--border));
+  border-radius: 2px;
+}
