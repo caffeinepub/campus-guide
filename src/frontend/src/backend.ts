@@ -89,14 +89,6 @@ export class ExternalBlob {
         return this;
     }
 }
-export interface LocationInput {
-    floor: string;
-    name: string;
-    building: string;
-    description: string;
-    roomNumber: string;
-    category: string;
-}
 export interface Location {
     id: string;
     floor: string;
@@ -106,6 +98,102 @@ export interface Location {
     description: string;
     roomNumber: string;
     category: Category;
+}
+export interface Placement {
+    highestPackage: bigint;
+    rate: bigint;
+    topRecruiters: Array<string>;
+    averagePackage: bigint;
+}
+export interface CollegeInfo {
+    tagline: string;
+    name: string;
+    established: string;
+    description: string;
+    email: string;
+    website: string;
+    address: string;
+    phone: string;
+}
+export interface LocationInput {
+    floor: string;
+    name: string;
+    building: string;
+    description: string;
+    roomNumber: string;
+    category: string;
+}
+export interface CollegeCourse {
+    duration: string;
+    fees: string;
+    name: string;
+    description: string;
+    level: string;
+    eligibility: string;
+}
+export interface CollegeEntry {
+    id: bigint;
+    departments: Array<Department>;
+    courses: Array<CollegeCourse>;
+    placement: Placement;
+    tagline: string;
+    name: string;
+    createdAt: bigint;
+    established: string;
+    description: string;
+    email: string;
+    website: string;
+    achievements: Array<string>;
+    address: string;
+    faculty: Array<FacultyMember>;
+    facilities: Array<string>;
+    managedBy: Principal;
+    phone: string;
+}
+export interface Course {
+    id: string;
+    duration: string;
+    fees: string;
+    name: string;
+    createdAt: bigint;
+    description: string;
+    eligibility: string;
+    department: string;
+}
+export interface CollegeEntryInput {
+    departments: Array<Department>;
+    courses: Array<CollegeCourse>;
+    placement: Placement;
+    tagline: string;
+    name: string;
+    established: string;
+    description: string;
+    email: string;
+    website: string;
+    achievements: Array<string>;
+    address: string;
+    faculty: Array<FacultyMember>;
+    facilities: Array<string>;
+    phone: string;
+}
+export interface Department {
+    name: string;
+    description: string;
+}
+export interface CourseInput {
+    duration: string;
+    fees: string;
+    name: string;
+    description: string;
+    eligibility: string;
+    department: string;
+}
+export interface FacultyMember {
+    name: string;
+    designation: string;
+    experience: string;
+    department: string;
+    qualification: string;
 }
 export interface UserProfile {
     name: string;
@@ -124,20 +212,36 @@ export enum UserRole {
 }
 export interface backendInterface {
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
-    addLocation(input: LocationInput): Promise<string>;
+    addCollegeEntry(input: CollegeEntryInput): Promise<bigint>;
+    addCourse(input: CourseInput): Promise<string>;
+    addLocation(location: LocationInput): Promise<string>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    deleteCollegeEntry(id: bigint): Promise<void>;
+    deleteCourse(id: string): Promise<void>;
     deleteLocation(id: string): Promise<void>;
+    getAllCollegeEntries(): Promise<Array<CollegeEntry>>;
+    getAllCourses(): Promise<Array<Course>>;
     getAllLocations(): Promise<Array<Location>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
+    getCollegeEntry(id: bigint): Promise<CollegeEntry | null>;
+    getCollegeInfo(): Promise<CollegeInfo | null>;
+    getCourse(id: string): Promise<Course | null>;
+    getCoursesByDepartment(department: string): Promise<Array<Course>>;
     getLocation(id: string): Promise<Location | null>;
+    getLocationsByCategory(category: string): Promise<Array<Location>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
+    initializeCollegeInfo(info: CollegeInfo): Promise<void>;
     isCallerAdmin(): Promise<boolean>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
-    searchLocations(searchTerm: string): Promise<Array<Location>>;
+    searchCourses(searchTerm: string): Promise<Array<Course>>;
+    searchLocations(searchTerm: string, category: string | null): Promise<Array<Location>>;
+    updateCollegeEntry(id: bigint, input: CollegeEntryInput): Promise<void>;
+    updateCollegeInfo(info: CollegeInfo): Promise<void>;
+    updateCourse(id: string, input: CourseInput): Promise<void>;
     updateLocation(id: string, input: LocationInput): Promise<void>;
 }
-import type { Category as _Category, Location as _Location, UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
+import type { Category as _Category, CollegeEntry as _CollegeEntry, CollegeInfo as _CollegeInfo, Course as _Course, Location as _Location, UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
     async _initializeAccessControlWithSecret(arg0: string): Promise<void> {
@@ -151,6 +255,34 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor._initializeAccessControlWithSecret(arg0);
+            return result;
+        }
+    }
+    async addCollegeEntry(arg0: CollegeEntryInput): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.addCollegeEntry(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.addCollegeEntry(arg0);
+            return result;
+        }
+    }
+    async addCourse(arg0: CourseInput): Promise<string> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.addCourse(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.addCourse(arg0);
             return result;
         }
     }
@@ -182,6 +314,34 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async deleteCollegeEntry(arg0: bigint): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteCollegeEntry(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteCollegeEntry(arg0);
+            return result;
+        }
+    }
+    async deleteCourse(arg0: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteCourse(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteCourse(arg0);
+            return result;
+        }
+    }
     async deleteLocation(arg0: string): Promise<void> {
         if (this.processError) {
             try {
@@ -193,6 +353,34 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.deleteLocation(arg0);
+            return result;
+        }
+    }
+    async getAllCollegeEntries(): Promise<Array<CollegeEntry>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAllCollegeEntries();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAllCollegeEntries();
+            return result;
+        }
+    }
+    async getAllCourses(): Promise<Array<Course>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAllCourses();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAllCourses();
             return result;
         }
     }
@@ -238,18 +426,88 @@ export class Backend implements backendInterface {
             return from_candid_UserRole_n9(this._uploadFile, this._downloadFile, result);
         }
     }
-    async getLocation(arg0: string): Promise<Location | null> {
+    async getCollegeEntry(arg0: bigint): Promise<CollegeEntry | null> {
         if (this.processError) {
             try {
-                const result = await this.actor.getLocation(arg0);
+                const result = await this.actor.getCollegeEntry(arg0);
                 return from_candid_opt_n11(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.getLocation(arg0);
+            const result = await this.actor.getCollegeEntry(arg0);
             return from_candid_opt_n11(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getCollegeInfo(): Promise<CollegeInfo | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getCollegeInfo();
+                return from_candid_opt_n12(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getCollegeInfo();
+            return from_candid_opt_n12(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getCourse(arg0: string): Promise<Course | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getCourse(arg0);
+                return from_candid_opt_n13(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getCourse(arg0);
+            return from_candid_opt_n13(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getCoursesByDepartment(arg0: string): Promise<Array<Course>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getCoursesByDepartment(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getCoursesByDepartment(arg0);
+            return result;
+        }
+    }
+    async getLocation(arg0: string): Promise<Location | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getLocation(arg0);
+                return from_candid_opt_n14(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getLocation(arg0);
+            return from_candid_opt_n14(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getLocationsByCategory(arg0: string): Promise<Array<Location>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getLocationsByCategory(arg0);
+                return from_candid_vec_n3(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getLocationsByCategory(arg0);
+            return from_candid_vec_n3(this._uploadFile, this._downloadFile, result);
         }
     }
     async getUserProfile(arg0: Principal): Promise<UserProfile | null> {
@@ -264,6 +522,20 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.getUserProfile(arg0);
             return from_candid_opt_n8(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async initializeCollegeInfo(arg0: CollegeInfo): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.initializeCollegeInfo(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.initializeCollegeInfo(arg0);
+            return result;
         }
     }
     async isCallerAdmin(): Promise<boolean> {
@@ -294,18 +566,74 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async searchLocations(arg0: string): Promise<Array<Location>> {
+    async searchCourses(arg0: string): Promise<Array<Course>> {
         if (this.processError) {
             try {
-                const result = await this.actor.searchLocations(arg0);
+                const result = await this.actor.searchCourses(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.searchCourses(arg0);
+            return result;
+        }
+    }
+    async searchLocations(arg0: string, arg1: string | null): Promise<Array<Location>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.searchLocations(arg0, to_candid_opt_n15(this._uploadFile, this._downloadFile, arg1));
                 return from_candid_vec_n3(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.searchLocations(arg0);
+            const result = await this.actor.searchLocations(arg0, to_candid_opt_n15(this._uploadFile, this._downloadFile, arg1));
             return from_candid_vec_n3(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async updateCollegeEntry(arg0: bigint, arg1: CollegeEntryInput): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateCollegeEntry(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateCollegeEntry(arg0, arg1);
+            return result;
+        }
+    }
+    async updateCollegeInfo(arg0: CollegeInfo): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateCollegeInfo(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateCollegeInfo(arg0);
+            return result;
+        }
+    }
+    async updateCourse(arg0: string, arg1: CourseInput): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateCourse(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateCourse(arg0, arg1);
+            return result;
         }
     }
     async updateLocation(arg0: string, arg1: LocationInput): Promise<void> {
@@ -332,7 +660,16 @@ function from_candid_Location_n4(_uploadFile: (file: ExternalBlob) => Promise<Ui
 function from_candid_UserRole_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserRole): UserRole {
     return from_candid_variant_n10(_uploadFile, _downloadFile, value);
 }
-function from_candid_opt_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Location]): Location | null {
+function from_candid_opt_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_CollegeEntry]): CollegeEntry | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_CollegeInfo]): CollegeInfo | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Course]): Course | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n14(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Location]): Location | null {
     return value.length === 0 ? null : from_candid_Location_n4(_uploadFile, _downloadFile, value[0]);
 }
 function from_candid_opt_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfile]): UserProfile | null {
@@ -395,6 +732,9 @@ function from_candid_vec_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8Ar
 }
 function to_candid_UserRole_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserRole): _UserRole {
     return to_candid_variant_n2(_uploadFile, _downloadFile, value);
+}
+function to_candid_opt_n15(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: string | null): [] | [string] {
+    return value === null ? candid_none() : candid_some(value);
 }
 function to_candid_variant_n2(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserRole): {
     admin: null;

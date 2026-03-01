@@ -15,7 +15,6 @@ import {
   Layers,
   MapPin,
 } from "lucide-react";
-import QRCode from "qrcode";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import type { Location } from "../backend.d";
@@ -27,39 +26,123 @@ interface LocationDetailProps {
   onClose: () => void;
 }
 
+// ── QR Code Generator ─────────────────────────────────────
+// Loads qrcode-generator from CDN (same pattern as jsQR in useQRScanner)
+
+declare global {
+  interface Window {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    qrcode: any;
+  }
+}
+
+const QR_CDN_URL =
+  "https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js";
+
+let qrLibPromise: Promise<void> | null = null;
+
+function loadQRLib(): Promise<void> {
+  if (window.qrcode) return Promise.resolve();
+  if (qrLibPromise) return qrLibPromise;
+
+  qrLibPromise = new Promise<void>((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = QR_CDN_URL;
+    script.async = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("Failed to load QR library"));
+    document.head.appendChild(script);
+  });
+
+  return qrLibPromise;
+}
+
 function QRCodeDisplay({ locationId }: { locationId: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [dataUrl, setDataUrl] = useState<string | null>(null);
+  const [status, setStatus] = useState<"loading" | "ready" | "error">(
+    "loading",
+  );
 
   useEffect(() => {
+    let cancelled = false;
+    setStatus("loading");
+
     const payload = `location:${locationId}`;
-    QRCode.toDataURL(payload, {
-      width: 160,
-      margin: 2,
-      color: {
-        dark: "#0c1a2e",
-        light: "#f5f8fb",
-      },
-    })
-      .then(setDataUrl)
-      .catch(console.error);
+
+    loadQRLib()
+      .then(() => {
+        if (cancelled) return;
+        if (!window.qrcode || !canvasRef.current) return;
+
+        try {
+          const qr = window.qrcode(0, "M");
+          qr.addData(payload);
+          qr.make();
+
+          const canvas = canvasRef.current;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) return;
+
+          const moduleCount = qr.getModuleCount();
+          const size = 160;
+          const moduleSize = size / moduleCount;
+
+          canvas.width = size;
+          canvas.height = size;
+
+          // Background
+          ctx.fillStyle = "#f5f8fb";
+          ctx.fillRect(0, 0, size, size);
+
+          // Modules
+          ctx.fillStyle = "#0c1a2e";
+          for (let row = 0; row < moduleCount; row++) {
+            for (let col = 0; col < moduleCount; col++) {
+              if (qr.isDark(row, col)) {
+                ctx.fillRect(
+                  col * moduleSize,
+                  row * moduleSize,
+                  moduleSize,
+                  moduleSize,
+                );
+              }
+            }
+          }
+
+          setStatus("ready");
+        } catch {
+          setStatus("error");
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setStatus("error");
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [locationId]);
 
-  if (!dataUrl) {
-    return (
-      <div className="w-40 h-40 bg-muted rounded-lg animate-pulse flex items-center justify-center">
-        <span className="text-xs text-muted-foreground">Generating QR…</span>
-      </div>
-    );
-  }
-
   return (
-    <img
-      ref={canvasRef as never}
-      src={dataUrl}
-      alt="Location QR Code"
-      className="w-40 h-40 rounded-lg border border-border shadow-sm"
-    />
+    <div className="flex flex-col items-center gap-1">
+      {status === "loading" && (
+        <div className="w-40 h-40 bg-muted rounded-lg animate-pulse flex items-center justify-center">
+          <span className="text-xs text-muted-foreground">Generating QR…</span>
+        </div>
+      )}
+      {status === "error" && (
+        <div className="w-40 h-40 bg-muted rounded-lg flex items-center justify-center">
+          <span className="text-xs text-muted-foreground text-center px-2">
+            QR unavailable offline
+          </span>
+        </div>
+      )}
+      <canvas
+        ref={canvasRef}
+        className={`rounded-lg border border-border shadow-sm ${status !== "ready" ? "hidden" : ""}`}
+        style={{ width: "160px", height: "160px" }}
+      />
+    </div>
   );
 }
 

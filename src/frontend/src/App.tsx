@@ -1,18 +1,28 @@
 import { Toaster } from "@/components/ui/sonner";
-import { Map as MapIcon, ScanLine, Search, ShieldCheck } from "lucide-react";
+import {
+  Building2,
+  GraduationCap,
+  LogIn,
+  Map as MapIcon,
+  ScanLine,
+  Search,
+} from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import type { Location } from "./backend.d";
+import { AIChatBot } from "./components/AIChatBot";
 import { LocationDetail } from "./components/LocationDetail";
 import { SEED_LOCATIONS } from "./data/seedLocations";
 import { useGetAllLocations, useGetLocation } from "./hooks/useQueries";
-import { AdminTab } from "./pages/AdminTab";
+import { CollegesTab } from "./pages/CollegesTab";
+import { CoursesTab } from "./pages/CoursesTab";
 import { MapTab } from "./pages/MapTab";
 import { ScanTab } from "./pages/ScanTab";
 import { SearchTab } from "./pages/SearchTab";
+import { SignInTab } from "./pages/SignInTab";
 import { getUrlParameter } from "./utils/urlParams";
 
-type Tab = "map" | "search" | "scan" | "admin";
+type Tab = "map" | "search" | "scan" | "courses" | "colleges" | "signin";
 
 const TABS: {
   id: Tab;
@@ -25,7 +35,9 @@ const TABS: {
   { id: "map", label: "Map", icon: MapIcon },
   { id: "search", label: "Search", icon: Search },
   { id: "scan", label: "Scan", icon: ScanLine },
-  { id: "admin", label: "Admin", icon: ShieldCheck },
+  { id: "courses", label: "Courses", icon: GraduationCap },
+  { id: "colleges", label: "Colleges", icon: Building2 },
+  { id: "signin", label: "Sign In", icon: LogIn },
 ];
 
 function useDeepLinkLocation(onFound: (loc: Location) => void) {
@@ -99,7 +111,13 @@ export default function App() {
                 isActive={activeTab === "scan"}
               />
             )}
-            {activeTab === "admin" && <AdminTab />}
+            {activeTab === "courses" && <CoursesTab />}
+            {activeTab === "colleges" && <CollegesTab />}
+            {activeTab === "signin" && (
+              <SignInTab
+                onNavigateToColleges={() => setActiveTab("colleges")}
+              />
+            )}
           </motion.div>
         </AnimatePresence>
       </main>
@@ -137,7 +155,7 @@ export default function App() {
                   }}
                 />
                 <span
-                  className="text-[10px] font-medium transition-colors"
+                  className="text-[9px] font-medium transition-colors"
                   style={{
                     color: isActive
                       ? "oklch(var(--nav-active))"
@@ -158,6 +176,9 @@ export default function App() {
         open={sheetOpen}
         onClose={handleCloseSheet}
       />
+
+      {/* AI Chat Bot - floats above bottom nav */}
+      <AIChatBot />
 
       <Toaster position="top-center" />
     </div>

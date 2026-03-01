@@ -8,6 +8,55 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
+export const Department = IDL.Record({
+  'name' : IDL.Text,
+  'description' : IDL.Text,
+});
+export const CollegeCourse = IDL.Record({
+  'duration' : IDL.Text,
+  'fees' : IDL.Text,
+  'name' : IDL.Text,
+  'description' : IDL.Text,
+  'level' : IDL.Text,
+  'eligibility' : IDL.Text,
+});
+export const Placement = IDL.Record({
+  'highestPackage' : IDL.Nat,
+  'rate' : IDL.Nat,
+  'topRecruiters' : IDL.Vec(IDL.Text),
+  'averagePackage' : IDL.Nat,
+});
+export const FacultyMember = IDL.Record({
+  'name' : IDL.Text,
+  'designation' : IDL.Text,
+  'experience' : IDL.Text,
+  'department' : IDL.Text,
+  'qualification' : IDL.Text,
+});
+export const CollegeEntryInput = IDL.Record({
+  'departments' : IDL.Vec(Department),
+  'courses' : IDL.Vec(CollegeCourse),
+  'placement' : Placement,
+  'tagline' : IDL.Text,
+  'name' : IDL.Text,
+  'established' : IDL.Text,
+  'description' : IDL.Text,
+  'email' : IDL.Text,
+  'website' : IDL.Text,
+  'achievements' : IDL.Vec(IDL.Text),
+  'address' : IDL.Text,
+  'faculty' : IDL.Vec(FacultyMember),
+  'facilities' : IDL.Vec(IDL.Text),
+  'phone' : IDL.Text,
+});
+export const CourseInput = IDL.Record({
+  'duration' : IDL.Text,
+  'fees' : IDL.Text,
+  'name' : IDL.Text,
+  'description' : IDL.Text,
+  'eligibility' : IDL.Text,
+  'department' : IDL.Text,
+});
 export const LocationInput = IDL.Record({
   'floor' : IDL.Text,
   'name' : IDL.Text,
@@ -20,6 +69,35 @@ export const UserRole = IDL.Variant({
   'admin' : IDL.Null,
   'user' : IDL.Null,
   'guest' : IDL.Null,
+});
+export const CollegeEntry = IDL.Record({
+  'id' : IDL.Nat,
+  'departments' : IDL.Vec(Department),
+  'courses' : IDL.Vec(CollegeCourse),
+  'placement' : Placement,
+  'tagline' : IDL.Text,
+  'name' : IDL.Text,
+  'createdAt' : IDL.Int,
+  'established' : IDL.Text,
+  'description' : IDL.Text,
+  'email' : IDL.Text,
+  'website' : IDL.Text,
+  'achievements' : IDL.Vec(IDL.Text),
+  'address' : IDL.Text,
+  'faculty' : IDL.Vec(FacultyMember),
+  'facilities' : IDL.Vec(IDL.Text),
+  'managedBy' : IDL.Principal,
+  'phone' : IDL.Text,
+});
+export const Course = IDL.Record({
+  'id' : IDL.Text,
+  'duration' : IDL.Text,
+  'fees' : IDL.Text,
+  'name' : IDL.Text,
+  'createdAt' : IDL.Int,
+  'description' : IDL.Text,
+  'eligibility' : IDL.Text,
+  'department' : IDL.Text,
 });
 export const Category = IDL.Variant({
   'lab' : IDL.Null,
@@ -39,30 +117,113 @@ export const Location = IDL.Record({
   'category' : Category,
 });
 export const UserProfile = IDL.Record({ 'name' : IDL.Text });
+export const CollegeInfo = IDL.Record({
+  'tagline' : IDL.Text,
+  'name' : IDL.Text,
+  'established' : IDL.Text,
+  'description' : IDL.Text,
+  'email' : IDL.Text,
+  'website' : IDL.Text,
+  'address' : IDL.Text,
+  'phone' : IDL.Text,
+});
 
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+  'addCollegeEntry' : IDL.Func([CollegeEntryInput], [IDL.Nat], []),
+  'addCourse' : IDL.Func([CourseInput], [IDL.Text], []),
   'addLocation' : IDL.Func([LocationInput], [IDL.Text], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'deleteCollegeEntry' : IDL.Func([IDL.Nat], [], []),
+  'deleteCourse' : IDL.Func([IDL.Text], [], []),
   'deleteLocation' : IDL.Func([IDL.Text], [], []),
+  'getAllCollegeEntries' : IDL.Func([], [IDL.Vec(CollegeEntry)], ['query']),
+  'getAllCourses' : IDL.Func([], [IDL.Vec(Course)], ['query']),
   'getAllLocations' : IDL.Func([], [IDL.Vec(Location)], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+  'getCollegeEntry' : IDL.Func([IDL.Nat], [IDL.Opt(CollegeEntry)], ['query']),
+  'getCollegeInfo' : IDL.Func([], [IDL.Opt(CollegeInfo)], ['query']),
+  'getCourse' : IDL.Func([IDL.Text], [IDL.Opt(Course)], ['query']),
+  'getCoursesByDepartment' : IDL.Func([IDL.Text], [IDL.Vec(Course)], ['query']),
   'getLocation' : IDL.Func([IDL.Text], [IDL.Opt(Location)], ['query']),
+  'getLocationsByCategory' : IDL.Func(
+      [IDL.Text],
+      [IDL.Vec(Location)],
+      ['query'],
+    ),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
       [IDL.Opt(UserProfile)],
       ['query'],
     ),
+  'initializeCollegeInfo' : IDL.Func([CollegeInfo], [], []),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
-  'searchLocations' : IDL.Func([IDL.Text], [IDL.Vec(Location)], ['query']),
+  'searchCourses' : IDL.Func([IDL.Text], [IDL.Vec(Course)], ['query']),
+  'searchLocations' : IDL.Func(
+      [IDL.Text, IDL.Opt(IDL.Text)],
+      [IDL.Vec(Location)],
+      ['query'],
+    ),
+  'updateCollegeEntry' : IDL.Func([IDL.Nat, CollegeEntryInput], [], []),
+  'updateCollegeInfo' : IDL.Func([CollegeInfo], [], []),
+  'updateCourse' : IDL.Func([IDL.Text, CourseInput], [], []),
   'updateLocation' : IDL.Func([IDL.Text, LocationInput], [], []),
 });
 
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
+  const Department = IDL.Record({
+    'name' : IDL.Text,
+    'description' : IDL.Text,
+  });
+  const CollegeCourse = IDL.Record({
+    'duration' : IDL.Text,
+    'fees' : IDL.Text,
+    'name' : IDL.Text,
+    'description' : IDL.Text,
+    'level' : IDL.Text,
+    'eligibility' : IDL.Text,
+  });
+  const Placement = IDL.Record({
+    'highestPackage' : IDL.Nat,
+    'rate' : IDL.Nat,
+    'topRecruiters' : IDL.Vec(IDL.Text),
+    'averagePackage' : IDL.Nat,
+  });
+  const FacultyMember = IDL.Record({
+    'name' : IDL.Text,
+    'designation' : IDL.Text,
+    'experience' : IDL.Text,
+    'department' : IDL.Text,
+    'qualification' : IDL.Text,
+  });
+  const CollegeEntryInput = IDL.Record({
+    'departments' : IDL.Vec(Department),
+    'courses' : IDL.Vec(CollegeCourse),
+    'placement' : Placement,
+    'tagline' : IDL.Text,
+    'name' : IDL.Text,
+    'established' : IDL.Text,
+    'description' : IDL.Text,
+    'email' : IDL.Text,
+    'website' : IDL.Text,
+    'achievements' : IDL.Vec(IDL.Text),
+    'address' : IDL.Text,
+    'faculty' : IDL.Vec(FacultyMember),
+    'facilities' : IDL.Vec(IDL.Text),
+    'phone' : IDL.Text,
+  });
+  const CourseInput = IDL.Record({
+    'duration' : IDL.Text,
+    'fees' : IDL.Text,
+    'name' : IDL.Text,
+    'description' : IDL.Text,
+    'eligibility' : IDL.Text,
+    'department' : IDL.Text,
+  });
   const LocationInput = IDL.Record({
     'floor' : IDL.Text,
     'name' : IDL.Text,
@@ -75,6 +236,35 @@ export const idlFactory = ({ IDL }) => {
     'admin' : IDL.Null,
     'user' : IDL.Null,
     'guest' : IDL.Null,
+  });
+  const CollegeEntry = IDL.Record({
+    'id' : IDL.Nat,
+    'departments' : IDL.Vec(Department),
+    'courses' : IDL.Vec(CollegeCourse),
+    'placement' : Placement,
+    'tagline' : IDL.Text,
+    'name' : IDL.Text,
+    'createdAt' : IDL.Int,
+    'established' : IDL.Text,
+    'description' : IDL.Text,
+    'email' : IDL.Text,
+    'website' : IDL.Text,
+    'achievements' : IDL.Vec(IDL.Text),
+    'address' : IDL.Text,
+    'faculty' : IDL.Vec(FacultyMember),
+    'facilities' : IDL.Vec(IDL.Text),
+    'managedBy' : IDL.Principal,
+    'phone' : IDL.Text,
+  });
+  const Course = IDL.Record({
+    'id' : IDL.Text,
+    'duration' : IDL.Text,
+    'fees' : IDL.Text,
+    'name' : IDL.Text,
+    'createdAt' : IDL.Int,
+    'description' : IDL.Text,
+    'eligibility' : IDL.Text,
+    'department' : IDL.Text,
   });
   const Category = IDL.Variant({
     'lab' : IDL.Null,
@@ -94,24 +284,62 @@ export const idlFactory = ({ IDL }) => {
     'category' : Category,
   });
   const UserProfile = IDL.Record({ 'name' : IDL.Text });
+  const CollegeInfo = IDL.Record({
+    'tagline' : IDL.Text,
+    'name' : IDL.Text,
+    'established' : IDL.Text,
+    'description' : IDL.Text,
+    'email' : IDL.Text,
+    'website' : IDL.Text,
+    'address' : IDL.Text,
+    'phone' : IDL.Text,
+  });
   
   return IDL.Service({
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+    'addCollegeEntry' : IDL.Func([CollegeEntryInput], [IDL.Nat], []),
+    'addCourse' : IDL.Func([CourseInput], [IDL.Text], []),
     'addLocation' : IDL.Func([LocationInput], [IDL.Text], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'deleteCollegeEntry' : IDL.Func([IDL.Nat], [], []),
+    'deleteCourse' : IDL.Func([IDL.Text], [], []),
     'deleteLocation' : IDL.Func([IDL.Text], [], []),
+    'getAllCollegeEntries' : IDL.Func([], [IDL.Vec(CollegeEntry)], ['query']),
+    'getAllCourses' : IDL.Func([], [IDL.Vec(Course)], ['query']),
     'getAllLocations' : IDL.Func([], [IDL.Vec(Location)], ['query']),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+    'getCollegeEntry' : IDL.Func([IDL.Nat], [IDL.Opt(CollegeEntry)], ['query']),
+    'getCollegeInfo' : IDL.Func([], [IDL.Opt(CollegeInfo)], ['query']),
+    'getCourse' : IDL.Func([IDL.Text], [IDL.Opt(Course)], ['query']),
+    'getCoursesByDepartment' : IDL.Func(
+        [IDL.Text],
+        [IDL.Vec(Course)],
+        ['query'],
+      ),
     'getLocation' : IDL.Func([IDL.Text], [IDL.Opt(Location)], ['query']),
+    'getLocationsByCategory' : IDL.Func(
+        [IDL.Text],
+        [IDL.Vec(Location)],
+        ['query'],
+      ),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(UserProfile)],
         ['query'],
       ),
+    'initializeCollegeInfo' : IDL.Func([CollegeInfo], [], []),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
-    'searchLocations' : IDL.Func([IDL.Text], [IDL.Vec(Location)], ['query']),
+    'searchCourses' : IDL.Func([IDL.Text], [IDL.Vec(Course)], ['query']),
+    'searchLocations' : IDL.Func(
+        [IDL.Text, IDL.Opt(IDL.Text)],
+        [IDL.Vec(Location)],
+        ['query'],
+      ),
+    'updateCollegeEntry' : IDL.Func([IDL.Nat, CollegeEntryInput], [], []),
+    'updateCollegeInfo' : IDL.Func([CollegeInfo], [], []),
+    'updateCourse' : IDL.Func([IDL.Text, CourseInput], [], []),
     'updateLocation' : IDL.Func([IDL.Text, LocationInput], [], []),
   });
 };

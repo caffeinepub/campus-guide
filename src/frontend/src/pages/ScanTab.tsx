@@ -1,7 +1,14 @@
 import { Button } from "@/components/ui/button";
-import { AlertCircle, Camera, RotateCcw, X, ZapOff } from "lucide-react";
+import {
+  AlertCircle,
+  Camera,
+  ImageUp,
+  RotateCcw,
+  X,
+  ZapOff,
+} from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Location } from "../backend.d";
 import { useActor } from "../hooks/useActor";
 import { useQRScanner } from "../qr-code/useQRScanner";
@@ -16,6 +23,7 @@ export function ScanTab({ onLocationFound, isActive }: ScanTabProps) {
   const [scanError, setScanError] = useState<string | null>(null);
   const [scanSuccess, setScanSuccess] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const scanner = useQRScanner({
     facingMode: "environment",
@@ -87,6 +95,51 @@ export function ScanTab({ onLocationFound, isActive }: ScanTabProps) {
     setScanError(null);
     scanner.clearResults();
     scanner.retry();
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setScanError(null);
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        URL.revokeObjectURL(url);
+        return;
+      }
+      ctx.drawImage(img, 0, 0);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+      // Use jsQR from window (loaded by useQRScanner)
+      if (window.jsQR) {
+        const result = window.jsQR(
+          imageData.data,
+          imageData.width,
+          imageData.height,
+        );
+        if (result?.data) {
+          processResult(result.data);
+        } else {
+          setScanError("No QR code found in the uploaded image.");
+        }
+      } else {
+        setScanError(
+          "QR decoder is still loading. Please wait a moment and try again.",
+        );
+      }
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      setScanError("Could not read the selected image file.");
+    };
+    img.src = url;
+    // Reset input so the same file can be re-selected
+    e.target.value = "";
   };
 
   return (
@@ -270,13 +323,33 @@ export function ScanTab({ onLocationFound, isActive }: ScanTabProps) {
             Retry camera
           </Button>
         )}
+
+        {/* Upload Photo button — always visible */}
+        <div className="pt-1">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleFileUpload}
+          />
+          <Button
+            variant="outline"
+            className="w-full h-11 rounded-xl text-sm font-medium"
+            onClick={() => fileInputRef.current?.click()}
+            type="button"
+          >
+            <ImageUp className="w-4 h-4 mr-2" />
+            Upload Photo to Scan
+          </Button>
+        </div>
       </div>
 
       {/* Hint */}
-      <div className="px-6 mt-6 text-center">
+      <div className="px-6 mt-4 mb-4 text-center">
         <p className="text-xs text-muted-foreground leading-relaxed">
-          Scan the QR code displayed on location signs or shared from the app to
-          instantly navigate to any room.
+          Point your camera at a Campus Guide QR code, or upload a photo
+          containing a QR code to navigate to any location.
         </p>
       </div>
     </div>

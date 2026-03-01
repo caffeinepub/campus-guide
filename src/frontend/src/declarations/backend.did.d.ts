@@ -15,6 +15,85 @@ export type Category = { 'lab' : null } |
   { 'office' : null } |
   { 'department' : null } |
   { 'classroom' : null };
+export interface CollegeCourse {
+  'duration' : string,
+  'fees' : string,
+  'name' : string,
+  'description' : string,
+  'level' : string,
+  'eligibility' : string,
+}
+export interface CollegeEntry {
+  'id' : bigint,
+  'departments' : Array<Department>,
+  'courses' : Array<CollegeCourse>,
+  'placement' : Placement,
+  'tagline' : string,
+  'name' : string,
+  'createdAt' : bigint,
+  'established' : string,
+  'description' : string,
+  'email' : string,
+  'website' : string,
+  'achievements' : Array<string>,
+  'address' : string,
+  'faculty' : Array<FacultyMember>,
+  'facilities' : Array<string>,
+  'managedBy' : Principal,
+  'phone' : string,
+}
+export interface CollegeEntryInput {
+  'departments' : Array<Department>,
+  'courses' : Array<CollegeCourse>,
+  'placement' : Placement,
+  'tagline' : string,
+  'name' : string,
+  'established' : string,
+  'description' : string,
+  'email' : string,
+  'website' : string,
+  'achievements' : Array<string>,
+  'address' : string,
+  'faculty' : Array<FacultyMember>,
+  'facilities' : Array<string>,
+  'phone' : string,
+}
+export interface CollegeInfo {
+  'tagline' : string,
+  'name' : string,
+  'established' : string,
+  'description' : string,
+  'email' : string,
+  'website' : string,
+  'address' : string,
+  'phone' : string,
+}
+export interface Course {
+  'id' : string,
+  'duration' : string,
+  'fees' : string,
+  'name' : string,
+  'createdAt' : bigint,
+  'description' : string,
+  'eligibility' : string,
+  'department' : string,
+}
+export interface CourseInput {
+  'duration' : string,
+  'fees' : string,
+  'name' : string,
+  'description' : string,
+  'eligibility' : string,
+  'department' : string,
+}
+export interface Department { 'name' : string, 'description' : string }
+export interface FacultyMember {
+  'name' : string,
+  'designation' : string,
+  'experience' : string,
+  'department' : string,
+  'qualification' : string,
+}
 export interface Location {
   'id' : string,
   'floor' : string,
@@ -33,23 +112,45 @@ export interface LocationInput {
   'roomNumber' : string,
   'category' : string,
 }
+export interface Placement {
+  'highestPackage' : bigint,
+  'rate' : bigint,
+  'topRecruiters' : Array<string>,
+  'averagePackage' : bigint,
+}
 export interface UserProfile { 'name' : string }
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
   { 'guest' : null };
 export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
+  'addCollegeEntry' : ActorMethod<[CollegeEntryInput], bigint>,
+  'addCourse' : ActorMethod<[CourseInput], string>,
   'addLocation' : ActorMethod<[LocationInput], string>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'deleteCollegeEntry' : ActorMethod<[bigint], undefined>,
+  'deleteCourse' : ActorMethod<[string], undefined>,
   'deleteLocation' : ActorMethod<[string], undefined>,
+  'getAllCollegeEntries' : ActorMethod<[], Array<CollegeEntry>>,
+  'getAllCourses' : ActorMethod<[], Array<Course>>,
   'getAllLocations' : ActorMethod<[], Array<Location>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getCollegeEntry' : ActorMethod<[bigint], [] | [CollegeEntry]>,
+  'getCollegeInfo' : ActorMethod<[], [] | [CollegeInfo]>,
+  'getCourse' : ActorMethod<[string], [] | [Course]>,
+  'getCoursesByDepartment' : ActorMethod<[string], Array<Course>>,
   'getLocation' : ActorMethod<[string], [] | [Location]>,
+  'getLocationsByCategory' : ActorMethod<[string], Array<Location>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'initializeCollegeInfo' : ActorMethod<[CollegeInfo], undefined>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
-  'searchLocations' : ActorMethod<[string], Array<Location>>,
+  'searchCourses' : ActorMethod<[string], Array<Course>>,
+  'searchLocations' : ActorMethod<[string, [] | [string]], Array<Location>>,
+  'updateCollegeEntry' : ActorMethod<[bigint, CollegeEntryInput], undefined>,
+  'updateCollegeInfo' : ActorMethod<[CollegeInfo], undefined>,
+  'updateCourse' : ActorMethod<[string, CourseInput], undefined>,
   'updateLocation' : ActorMethod<[string, LocationInput], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;
